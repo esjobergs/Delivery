@@ -56,9 +56,9 @@
 <body>
   <div class="card">
     <div class="loader" id="loader"></div>
-    <div class="status" id="status">⏳ Registering Arrival...</div>
+    <div class="status" id="status">⏳ Leverans registreras...</div>
     <div class="info" id="redirect" style="display:none;">
-      Tack! Du skickas vidare till <a href="https://www.tesla.com" target="_blank">tesla.com</a>
+      Tack! Du skickas vidare till <a href="https://www.dinhemsida.se" target="_blank">hemsida</a>
     </div>
   </div>
 
@@ -102,14 +102,13 @@
         body: JSON.stringify({ sessionId })
       }).then(() => {
         localStorage.setItem(checkinKey, nowMs.toString());
-        showMessage("✅ Arrival registered. We'll be there shortly");
+        showMessage("✅ Paketleverans registrerad. Vi kommer strax!");
       }).catch(() => {
-        showMessage("❌ Error. Please try again.");
+        showMessage("❌ Ett tekniskt fel uppstod.");
       });
     } else {
-      showMessage("✅ Arrival has already been registered. We'll be with you shortly.");
+      showMessage("✅ Leverans redan registrerad nyligen.");
     }
   </script>
 </body>
 </html>
-
