@@ -17,32 +17,49 @@
   </style>
 </head>
 <body>
-  <h1>📦 Package Delivery/Pick-Up</h1>
-  <div class="status" id="status">Registering arrival...</div>
+  <h1>📦 Package delivery/Pick-up</h1>
+  <div class="status" id="status">Registrering arrival...</div>
 
   <script>
-    // 1. Generera eller hämta ID från localStorage
-    const key = "deliverySessionId";
-    let id = localStorage.getItem(key);
-    if (!id) {
-      id = "PKT-" + Math.random().toString(36).substring(2, 6).toUpperCase();
-      localStorage.setItem(key, id);
+    // Inställningar
+    const sessionKey = "pktSessionId";
+    const checkinKey = "pktLastCheckin";
+    const blockTime = 30 * 60 * 1000; // 30 minuter
+    const now = new Date().getTime();
+
+    // Generera kort slump-ID (en gång per enhet)
+    function getSessionId() {
+      let existing = localStorage.getItem(sessionKey);
+      if (existing) return existing;
+      const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let id = '';
+      for (let i = 0; i < 5; i++) {
+        id += letters.charAt(Math.floor(Math.random() * letters.length));
+      }
+      const newId = "PKT-" + id;
+      localStorage.setItem(sessionKey, newId);
+      return newId;
     }
 
-    // 2. Skicka till Power Automate
-    fetch("https://prod-41.westus.logic.azure.com:443/workflows/6c9fe3017eff49fe82c8d10cf89f6af5/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=3Z4tYoCTd4pD5Fcw5vNDf1qVXuPo4pauZxADVQnZZOc", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ sessionId: id })
-    })
-    .then(() => {
-      document.getElementById("status").textContent = "✅ Arrival Registered. We'll be with you shortly.";
-    })
-    .catch(() => {
-      document.getElementById("status").textContent = "❌ Error. Please try again.";
-    });
+    const sessionId = getSessionId();
+    const lastCheckin = parseInt(localStorage.getItem(checkinKey) || "0");
+
+    if (now - lastCheckin < blockTime) {
+      document.getElementById("status").textContent = "✅ Arrival already registered.";
+    } else {
+      fetch("https://prod-41.westus.logic.azure.com:443/workflows/6c9fe3017eff49fe82c8d10cf89f6af5/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=3Z4tYoCTd4pD5Fcw5vNDf1qVXuPo4pauZxADVQnZZOc", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ sessionId })
+      }).then(() => {
+        localStorage.setItem(checkinKey, now.toString());
+        document.getElementById("status").textContent = `✅ Arrival Registered. We will be with you shortly. ID: ${sessionId}`;
+      }).catch(() => {
+        document.getElementById("status").textContent = "❌ Error. Please try again. ";
+      });
+    }
   </script>
 </body>
 </html>
