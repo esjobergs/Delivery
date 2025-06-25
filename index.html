@@ -25,7 +25,7 @@
     const key = "deliverySessionId";
     let id = localStorage.getItem(key);
     if (!id) {
-      id = "PKT-" + Math.random().toString(36).substring(2, 7).toUpperCase();
+      id = "PKT-" + Math.random().toString(36).substring(2, 4).toUpperCase();
       localStorage.setItem(key, id);
     }
 
