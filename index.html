@@ -17,8 +17,8 @@
   </style>
 </head>
 <body>
-  <h1>📦 Leverans på plats</h1>
-  <div class="status" id="status">Registrerar leverans...</div>
+  <h1>📦 Package Delivery/Pick-Up</h1>
+  <div class="status" id="status">Registering arrival...</div>
 
   <script>
     // 1. Generera eller hämta ID från localStorage
@@ -38,10 +38,10 @@
       body: JSON.stringify({ sessionId: id })
     })
     .then(() => {
-      document.getElementById("status").textContent = "✅ Incheckning klar. Tack!";
+      document.getElementById("status").textContent = "✅ Arrival Registered. We'll be with you shortly.";
     })
     .catch(() => {
-      document.getElementById("status").textContent = "❌ Något gick fel vid incheckning.";
+      document.getElementById("status").textContent = "❌ Error. Please try again.";
     });
   </script>
 </body>
