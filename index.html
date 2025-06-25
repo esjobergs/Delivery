@@ -21,10 +21,10 @@
   <div class="status" id="status">Registering arrival...</div>
 
   <script>
-    const sessionKey = "pktSessionId";
-    const checkinKey = "pktLastCheckin";
-    const blockTime = 30 * 60 * 1000; // 30 minutes
-    const now = new Date().getTime();
+    const sessionKey = "pktSessionId";          // per-user unique ID
+    const checkinKey = "pktLastCheckin";        // last time this user checked in
+    const blockTime = 30 * 60 * 1000;           // 30 minutes
+    const now = Date.now();
 
     function redirectAfter(ms) {
       setTimeout(() => {
@@ -33,7 +33,7 @@
     }
 
     function getSessionId() {
-      let existing = localStorage.getItem(sessionKey);
+      const existing = localStorage.getItem(sessionKey);
       if (existing) return existing;
       const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
       let id = '';
@@ -49,9 +49,12 @@
     const lastCheckin = parseInt(localStorage.getItem(checkinKey) || "0");
 
     if (now - lastCheckin < blockTime) {
-      document.getElementById("status").textContent = "✅ Arrival already registered.";
+      console.log("⛔ Already checked in recently.");
+      document.getElementById("status").textContent = "✅ Arrival already registered recently.";
       redirectAfter(4000);
     } else {
+      console.log("✅ Sending POST for", sessionId);
+
       fetch("https://prod-41.westus.logic.azure.com:443/workflows/6c9fe3017eff49fe82c8d10cf89f6af5/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=3Z4tYoCTd4pD5Fcw5vNDf1qVXuPo4pauZxADVQnZZOc", {
         method: "POST",
         headers: {
@@ -60,10 +63,12 @@
         body: JSON.stringify({ sessionId })
       }).then(() => {
         localStorage.setItem(checkinKey, now.toString());
-        document.getElementById("status").textContent = `✅ Arrival registered. We will be with you shortly. ID: ${sessionId}`;
+        document.getElementById("status").textContent = `✅ Arrival registered. We'll be with you shortly. ID: ${sessionId}`;
         redirectAfter(4000);
       }).catch(() => {
         document.getElementById("status").textContent = "❌ Error. Please try again.";
+        // Optional: still redirect after error?
+        redirectAfter(6000);
       });
     }
   </script>
